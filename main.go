@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -28,20 +30,39 @@ func main() {
 
 // handler
 func handleRequest(w http.ResponseWriter, req *http.Request) {
+	// indicate to the client to expect a chunked response
+	w.Header().Set("Transfer-Encoding", "chunked")
 
-	agg := []string{}
+	pr, pw := io.Pipe()
+
+	go ThisIsARoutineProcedureSirDontWorry(pw)
+
+	io.Copy(w, pr)
+}
+
+func ThisIsARoutineProcedureSirDontWorry(w *io.PipeWriter) {
+
+	b := new(bytes.Buffer)
 
 	for i := 0; i < 10; i++ {
-		// slow running fetch,
-		// which for whatever reason must be retrieved sequentially
+
 		s := getSlowData(i)
 
-		agg = append(agg, s...)
+		lines := strings.Join(s, "\n")
+
+		// write the partial data to the Pipewriter
+		// as it is retrieved
+		w.Write([]byte(lines + "\n"))
+
+		// clear any data the bufffer
+		b.Reset()
+
 	}
 
-	lines := strings.Join(agg, "\n")
+	// when all sequential calls are done
+	// close the writer, so the reader knows not to expect any more data
+	w.Close()
 
-	w.Write([]byte(lines))
 }
 
 //
