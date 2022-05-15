@@ -26,23 +26,36 @@ func main() {
 
 }
 
+// handler
 func handleRequest(w http.ResponseWriter, req *http.Request) {
 
-	s := getSlowData()
+	agg := []string{}
 
-	b := strings.Join(s, "\n")
+	for i := 0; i < 10; i++ {
+		// slow running fetch,
+		// which for whatever reason must be retrieved sequentially
+		s := getSlowData(i)
 
-	w.Write([]byte(b))
+		agg = append(agg, s...)
+	}
+
+	lines := strings.Join(agg, "\n")
+
+	w.Write([]byte(lines))
 }
 
-func getSlowData() []string {
-	// artificial delay
+//
+// fake slow data
+//
+func getSlowData(iteration int) []string {
+	// artificially delay
 	time.Sleep(time.Second * 2)
 
 	num := 100
 	res := make([]string, num)
+
 	for i := 0; i < num; i++ {
-		res[i] = fmt.Sprintf("dummy data line %v", i)
+		res[i] = fmt.Sprintf("dummy data line, iteration %v line %v", iteration, i)
 	}
 
 	return res
