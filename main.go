@@ -44,35 +44,41 @@ func ThisIsARoutineProcedureSirDontWorry(w io.WriteCloser) {
 
 	b := new(bytes.Buffer)
 
-	for i := 0; i < 10; i++ {
+	numIterations := 10
 
+	for i := 0; i < numIterations; i++ {
+		// simulate a slow operation that
+		// for some hypothetical reason can only be done sequentially
 		s := getSlowData(i)
 
 		lines := strings.Join(s, "\n")
 
-		// write the partial data to the Pipewriter
+		// write the partial data to the Writer
 		// as it is retrieved
 		w.Write([]byte(lines + "\n"))
 
-		// clear any data the bufffer
+		// clear any data the buffer
 		b.Reset()
+
+		log.Printf("iteration %v/%v complete", i+1, numIterations)
 
 	}
 
 	// when all sequential calls are done
 	// close the writer, so the reader knows not to expect any more data
+	b.Reset()
 	w.Close()
-
+	log.Println("slow request completed")
 }
 
 //
 // fake slow data
 //
 func getSlowData(iteration int) []string {
-	// artificially delay
+	// artificial delay
 	time.Sleep(time.Second * 2)
 
-	num := 100
+	num := 1000
 	res := make([]string, num)
 
 	for i := 0; i < num; i++ {
