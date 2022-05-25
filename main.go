@@ -40,7 +40,7 @@ func handleRequest(w http.ResponseWriter, req *http.Request) {
 	io.Copy(w, pr)
 }
 
-func ThisIsARoutineProcedureSirDontWorry(w *io.PipeWriter) {
+func ThisIsARoutineProcedureSirDontWorry(w io.WriteCloser) {
 
 	b := new(bytes.Buffer)
 
