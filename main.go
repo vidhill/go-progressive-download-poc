@@ -38,6 +38,8 @@ func handleRequest(w http.ResponseWriter, req *http.Request) {
 	go ThisIsARoutineProcedureSirDontWorry(pw)
 
 	io.Copy(w, pr)
+
+	log.Println("slow request completed")
 }
 
 func ThisIsARoutineProcedureSirDontWorry(w io.WriteCloser) {
@@ -68,7 +70,6 @@ func ThisIsARoutineProcedureSirDontWorry(w io.WriteCloser) {
 	// close the writer, so the reader knows not to expect any more data
 	b.Reset()
 	w.Close()
-	log.Println("slow request completed")
 }
 
 //
